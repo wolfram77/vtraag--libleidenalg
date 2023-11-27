@@ -1,29 +1,46 @@
 #include <igraph/igraph.h>
 #include <libleidenalg/GraphHelper.h>
 #include <libleidenalg/Optimiser.h>
-#include <libleidenalg/CPMVertexPartition.h>
+#include <libleidenalg/ModularityVertexPartition.h>
 #include <stdio.h>
+#include <chrono>
 
 using std::cout;
 using std::endl;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
 
-int main()
-{
+
+
+
+int main(int argc, char **argv) {
+    char *file   = argv[1];
+    char *output = argv[2];
     igraph_t g;
-    igraph_famous(&g, "Zachary");
-
+    // Read the graph from a Matrix Market file.
+    cout << "Reading graph from file " << file << " ..." << endl;
+    FILE *f = fopen(file, "r");
+    igraph_read_graph_edgelist(&g, f, 0, false);
     Graph graph(&g);
-
-    CPMVertexPartition part(&graph,
-                            0.05 /* resolution */ );
-
+    cout << "Graph has " << graph.vcount() << " vertices and " << graph.ecount() << " edges." << endl;
+    // Optimise the partitions using modularity.
+    ModularityVertexPartition part(&graph);
     Optimiser o;
-
+    auto start = high_resolution_clock::now();
     o.optimise_partition(&part);
-
-    cout << "Node\tCommunity" << endl;
-    for (int i = 0; i < graph.vcount(); i++)
-        cout << i << "\t" << part.membership(i) << endl;
-
+    auto stop  = high_resolution_clock::now();
+    float duration = duration_cast<microseconds>(stop - start).count() / 1000.0f;
+    cout << "Optimisation took " << duration << " ms." << endl;
+    // Output the resulting modularity.
+    cout << "Modularity: " << part.quality() << endl;
+    // Save the resulting partition to a file.
+    cout << "Saving partition to file " << file << ".part ..." << endl;
+    FILE *fout = fopen(output, "w");
+    for (size_t i = 0; i < graph.vcount(); i++)
+        fprintf(fout, "%zu %zu\n", i, part.membership(i));
+    fclose(fout);
+    // Clean up.
     igraph_destroy(&g);
+    fclose(f);
 }
