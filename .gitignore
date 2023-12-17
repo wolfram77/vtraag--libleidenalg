@@ -1,2 +1,6 @@
+# Generated files
+*.log
+*.csv
+
 build/
 builds/
