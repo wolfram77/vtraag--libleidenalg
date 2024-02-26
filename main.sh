@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=64
+#SBATCH --exclusive
+#SBATCH --job-name slurm
+#SBATCH --output=slurm.out
+# source scl_source enable gcc-toolset-11
+# module load hpcx-2.7.0/hpcx-ompi
+# module load openmpi/4.1.5
 src="vtraag--libleidenalg"
 out="$HOME/Logs/$src$1.log"
 ulimit -s unlimited
@@ -9,6 +19,7 @@ if [[ "$DOWNLOAD" != "0" ]]; then
   rm -rf $src
   git clone https://github.com/wolfram77/$src
   cd $src
+  git checkout tmp
 fi
 
 # Convert graph to binary format, run leidenalg, and clean up
