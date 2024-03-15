@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
     // Optimise the partitions using modularity.
     ModularityVertexPartition part(&graph);
     Optimiser o;
+    o.set_rng_seed(0);
     auto start = high_resolution_clock::now();
     o.optimise_partition(&part);
     auto stop  = high_resolution_clock::now();
