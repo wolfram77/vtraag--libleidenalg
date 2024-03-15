@@ -35,11 +35,19 @@ int main(int argc, char **argv) {
     cout << "Optimisation took " << duration << " ms." << endl;
     // Output the resulting modularity.
     cout << "Modularity: " << part.quality() << endl;
+    // Count the number of vertices in each community.
+    vector<size_t> counts(graph.vcount());
+    for (size_t i = 0; i < graph.vcount(); i++)
+        counts[part.membership(i)]++;
+    for (size_t i = 0; i < graph.vcount(); i++) {
+        if (counts[i] < 10000) continue;
+        cout << "Community " << i << " has " << counts[i] << " vertices." << endl;
+    }
     // Save the resulting partition to a file.
     cout << "Saving partition to file " << file << ".part ..." << endl;
     FILE *fout = fopen(output, "w");
     for (size_t i = 0; i < graph.vcount(); i++)
-        fprintf(fout, "%zu %zu\n", i, part.membership(i));
+        fprintf(fout, "%zu %zu\n", i, part.membership(i)+1);
     fclose(fout);
     // Clean up.
     igraph_destroy(&g);
