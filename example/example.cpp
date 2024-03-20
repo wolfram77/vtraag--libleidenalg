@@ -2,6 +2,7 @@
 #include <libleidenalg/GraphHelper.h>
 #include <libleidenalg/Optimiser.h>
 #include <libleidenalg/ModularityVertexPartition.h>
+#include <libleidenalg/RBConfigurationVertexPartition.h>
 #include <stdio.h>
 #include <chrono>
 
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
     Graph graph(&g);
     cout << "Graph has " << graph.vcount() << " vertices and " << graph.ecount() << " edges." << endl;
     // Optimise the partitions using modularity.
-    ModularityVertexPartition part(&graph);
+    RBConfigurationVertexPartition part(&graph);
     Optimiser o;
     o.set_rng_seed(0);
     auto start = high_resolution_clock::now();
@@ -34,7 +35,7 @@ int main(int argc, char **argv) {
     float duration = duration_cast<microseconds>(stop - start).count() / 1000.0f;
     cout << "Optimisation took " << duration << " ms." << endl;
     // Output the resulting modularity.
-    cout << "Modularity: " << part.quality() << endl;
+    cout << "Modularity: " << part.quality(1.0) << endl;
     // Count the number of vertices in each community.
     vector<size_t> counts(graph.vcount());
     for (size_t i = 0; i < graph.vcount(); i++)
